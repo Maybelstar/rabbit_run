@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- The text shown in the browser tab -->
-    <title>Catch the Square</title>
+    <title>Rabbit Run</title>
 
     <!-- Connect this HTML file to the CSS file -->
     <link rel="stylesheet" href="style.css" />
@@ -17,22 +17,42 @@
     <!-- Main game content -->
     <main class="container">
       <!-- Game title -->
-      <h1>Catch the Square</h1>
+      <h1>Rabbit Run</h1>
+      <p class="subtitle">Hop through a retro level, stomp critters, and collect shining coins.</p>
 
       <!-- Score and timer area -->
       <div class="info">
         <p>Score: <span id="score">0</span></p>
-        <p>Time: <span id="timer">20</span></p>
+        <p>Distance: <span id="distance">0%</span></p>
       </div>
 
-      <!-- This is the box where the square can move around -->
-      <div id="game-area">
-        <!-- This is the square the player clicks -->
-        <div id="square"></div>
+      <!-- This is the side-scrolling game area -->
+      <div id="game-area" aria-label="Retro platform game area">
+        <div class="sky-decor decor-sun"></div>
+        <div class="sky-decor decor-cloud cloud-one"></div>
+        <div class="sky-decor decor-cloud cloud-two"></div>
+        <div class="sky-decor decor-cloud cloud-three"></div>
+        <div class="hill hill-back"></div>
+        <div class="hill hill-front"></div>
+        <div id="parallax-strip"></div>
+        <div id="coins-layer"></div>
+        <div id="obstacles-layer"></div>
+        <div id="finish-flag" aria-hidden="true">
+          <div class="flag-top"></div>
+          <div class="flag-banner"></div>
+        </div>
+        <div id="runner" aria-hidden="true">
+          <div class="rabbit-ear ear-left"></div>
+          <div class="rabbit-ear ear-right"></div>
+          <div class="rabbit-head"></div>
+          <div class="rabbit-body"></div>
+          <div class="rabbit-tail"></div>
+        </div>
+        <div id="ground"></div>
       </div>
 
       <!-- Message shown before and after the game -->
-      <p id="message">Click Start to play!</p>
+      <p id="message">Press Start, use the arrow keys to move, and jump with space, click, or tap.</p>
 
       <!-- Button to begin the game -->
       <button id="start-button">Start Game</button>

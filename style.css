@@ -1,63 +1,529 @@
-/* This makes width and height easier to control */
 * {
   box-sizing: border-box;
 }
 
-/* Basic page styling */
+:root {
+  --ink: #1b3555;
+  --sky-top: #79b9f2;
+  --sky-bottom: #eef7ff;
+  --sun: #ffd88a;
+  --hill-back: #6f8f67;
+  --hill-front: #50734a;
+  --grass-top: #739b4d;
+  --grass-bottom: #476936;
+  --brick-main: #c9733a;
+  --brick-dark: #8d4725;
+  --pipe-main: #22a55a;
+  --pipe-dark: #177842;
+  --coin-main: #ffe25b;
+  --coin-dark: #d2a61f;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-}
-
-/* Centers the game on the page */
-.container {
-  max-width: 500px;
-  margin: 40px auto;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 20px;
-  text-align: center;
-  background-color: white;
-  border: 2px solid #333;
+  font-family: "Trebuchet MS", "Verdana", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(255, 233, 169, 0.7) 0%, rgba(255, 233, 169, 0) 24%),
+    linear-gradient(180deg, #95b9d7 0%, #d8e5ef 48%, #efe3cb 100%);
 }
 
-/* Places score and timer next to each other */
+.container {
+  width: min(100%, 860px);
+  padding: 26px;
+  border: 5px solid var(--ink);
+  border-radius: 28px;
+  background: rgba(251, 251, 248, 0.9);
+  box-shadow: 0 26px 40px rgba(44, 60, 77, 0.18);
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 4.2vw, 3.4rem);
+  color: var(--ink);
+}
+
+.subtitle {
+  margin: 10px 0 22px;
+  color: #295279;
+  font-size: 1.02rem;
+}
+
 .info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--ink);
+  flex-wrap: wrap;
 }
 
-/* The game area holds the square */
 #game-area {
   position: relative;
   width: 100%;
-  height: 300px;
-  border: 2px solid #333;
-  background-color: #e8f4ff;
+  height: 400px;
+  border: 5px solid var(--ink);
+  border-radius: 24px;
   overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 16%, rgba(255, 231, 164, 0.34) 0%, rgba(255, 231, 164, 0) 18%),
+    linear-gradient(180deg, var(--sky-top) 0%, #c6def4 46%, var(--sky-bottom) 100%);
+  cursor: pointer;
 }
 
-/* The clickable square */
-#square {
+#parallax-strip {
+  transform-origin: left bottom;
+}
+
+.hill,
+.decor-cloud,
+.decor-sun {
+  will-change: transform;
+}
+
+.sky-decor {
   position: absolute;
-  width: 50px;
-  height: 50px;
-  background-color: #ff5a5a;
+  pointer-events: none;
+}
+
+.decor-sun {
+  top: 28px;
+  right: 52px;
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff9dd 0%, var(--sun) 58%, #f3b665 100%);
+  box-shadow: 0 0 0 22px rgba(255, 216, 138, 0.12);
+}
+
+.decor-cloud {
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    18px -10px 0 8px rgba(255, 255, 255, 0.78),
+    44px -3px 0 6px rgba(255, 255, 255, 0.78);
+  filter: blur(1px);
+}
+
+.cloud-one {
+  top: 60px;
+  left: 64px;
+  width: 70px;
+}
+
+.cloud-two {
+  top: 116px;
+  left: 280px;
+  width: 90px;
+}
+
+.cloud-three {
+  top: 86px;
+  left: 520px;
+  width: 74px;
+}
+
+.hill {
+  position: absolute;
+  bottom: 82px;
+  border-radius: 50%;
+}
+
+.hill-back {
+  left: -20px;
+  width: 330px;
+  height: 158px;
+  background: linear-gradient(180deg, #8ca27c 0%, var(--hill-back) 72%, #5b7455 100%);
+}
+
+.hill-front {
+  right: -30px;
+  width: 360px;
+  height: 188px;
+  background: linear-gradient(180deg, #698f5f 0%, var(--hill-front) 70%, #385538 100%);
+}
+
+#parallax-strip,
+#coins-layer,
+#obstacles-layer {
+  position: absolute;
+  inset: 0;
+}
+
+#parallax-strip::before,
+#parallax-strip::after {
+  content: "";
+  position: absolute;
+  bottom: 108px;
+  width: 360px;
+  height: 110px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 45%),
+    linear-gradient(180deg, #8aa0b4 0%, #6f879d 100%);
+  clip-path: polygon(0 100%, 0 74%, 10% 62%, 18% 48%, 27% 60%, 38% 38%, 50% 55%, 61% 30%, 74% 58%, 84% 42%, 100% 72%, 100% 100%);
+  opacity: 0.62;
+}
+
+#parallax-strip::before {
+  left: 110px;
+}
+
+#parallax-strip::after {
+  left: 470px;
+  opacity: 0.46;
+}
+
+.coin {
+  position: absolute;
+  width: 24px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #fff2a3 0%, var(--coin-main) 55%, #ffbf21 100%);
+  border: 3px solid var(--coin-dark);
+  box-shadow: 0 0 12px rgba(255, 215, 64, 0.55);
+}
+
+.coin::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 50%;
+  width: 4px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.obstacle {
+  position: absolute;
+  bottom: 82px;
+}
+
+.pipe {
+  width: 64px;
+  height: 72px;
+  background: linear-gradient(180deg, #49d16f 0%, var(--pipe-main) 45%, var(--pipe-dark) 100%);
+  border: 4px solid #105b31;
+  border-radius: 6px 6px 0 0;
+}
+
+.pipe::before {
+  content: "";
+  position: absolute;
+  top: -18px;
+  left: -8px;
+  width: 76px;
+  height: 20px;
+  background: linear-gradient(180deg, #62e184 0%, #209d55 100%);
+  border: 4px solid #105b31;
+  border-radius: 8px;
+}
+
+.critter {
+  width: 42px;
+  height: 34px;
+  background: linear-gradient(180deg, #a76336 0%, #6e3e22 100%);
+  border: 4px solid #402113;
+  border-radius: 18px 18px 12px 12px;
+  transform-origin: center bottom;
+}
+
+.critter::before,
+.critter::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  width: 10px;
+  height: 12px;
+  background: #402113;
+  border-radius: 4px;
+}
+
+.critter::before {
+  left: 6px;
+}
+
+.critter::after {
+  right: 6px;
+}
+
+#finish-flag {
+  position: absolute;
+  right: -120px;
+  bottom: 82px;
+  width: 56px;
+  height: 210px;
+}
+
+.flag-top {
+  position: absolute;
+  left: 22px;
+  bottom: 0;
+  width: 8px;
+  height: 210px;
+  background: linear-gradient(180deg, #f8f8f8 0%, #d9d9d9 100%);
+  border: 2px solid #8291a2;
+}
+
+.flag-banner {
+  position: absolute;
+  top: 18px;
+  left: 30px;
+  width: 32px;
+  height: 24px;
+  background: linear-gradient(180deg, #ff5b57 0%, #d62d2d 100%);
+  border: 3px solid #8d1f1f;
+  clip-path: polygon(0 0, 100% 0, 100% 60%, 78% 50%, 100% 100%, 0 100%);
+}
+
+#runner {
+  position: absolute;
+  left: 96px;
+  bottom: 82px;
+  width: 52px;
+  height: 76px;
+}
+
+.rabbit-ear {
+  position: absolute;
+  top: -6px;
+  width: 12px;
+  height: 34px;
+  border-radius: 12px 12px 6px 6px;
+  background: #fff6ef;
+  border: 3px solid var(--ink);
+}
+
+.rabbit-ear::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 2px;
+  right: 2px;
+  bottom: 4px;
+  border-radius: 8px;
+  background: #ffb8c8;
+}
+
+.ear-left {
+  left: 10px;
+  transform: rotate(-8deg);
+}
+
+.ear-right {
+  left: 26px;
+  transform: rotate(8deg);
+}
+
+.rabbit-head {
+  position: absolute;
+  top: 16px;
+  left: 10px;
+  width: 30px;
+  height: 24px;
+  border-radius: 14px;
+  background: #fff6ef;
+  border: 3px solid var(--ink);
+}
+
+.rabbit-head::before,
+.rabbit-head::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.rabbit-head::before {
+  left: 7px;
+}
+
+.rabbit-head::after {
+  right: 7px;
+}
+
+.rabbit-body {
+  position: absolute;
+  top: 34px;
+  left: 6px;
+  width: 38px;
+  height: 34px;
+  border-radius: 18px 18px 14px 14px;
+  background: linear-gradient(180deg, #fff8f3 0%, #f4e6dc 100%);
+  border: 3px solid var(--ink);
+}
+
+.rabbit-tail {
+  position: absolute;
+  right: -2px;
+  top: 42px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff6ef;
+  border: 3px solid var(--ink);
+}
+
+#runner::before,
+#runner::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 12px;
+  height: 22px;
+  border-radius: 6px;
+  background: #fff6ef;
+  border: 2px solid var(--ink);
+}
+
+#runner::before {
+  left: 10px;
+}
+
+#runner::after {
+  right: 10px;
+}
+
+#runner.running .runner-body {
+  animation: runner-bob 0.28s infinite alternate steps(2, end);
+}
+
+#runner.running::before {
+  animation: leg-left 0.18s infinite alternate steps(2, end);
+}
+
+#runner.running::after {
+  animation: leg-right 0.18s infinite alternate steps(2, end);
+}
+
+#runner.jumping {
+  transform: rotate(-5deg);
+}
+
+#ground {
+  position: absolute;
   left: 0;
-  top: 0;
-  cursor: pointer;
+  right: 0;
+  bottom: 0;
+  height: 84px;
+  background: linear-gradient(180deg, var(--grass-top) 0%, var(--grass-bottom) 100%);
+  border-top: 5px solid #31512a;
 }
 
-/* Space around the message */
+#ground::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 18px;
+  height: 18px;
+  background:
+    linear-gradient(90deg, rgba(52, 86, 39, 0.55) 0 18px, transparent 18px 36px);
+  background-size: 36px 18px;
+}
+
+#ground::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+  background:
+    linear-gradient(180deg, #816446 0%, #694c35 100%);
+}
+
 #message {
-  margin: 15px 0;
+  margin: 18px 0 16px;
+  min-height: 24px;
+  font-weight: 700;
+  color: var(--ink);
 }
 
-/* Simple button styling */
 button {
-  padding: 10px 16px;
-  font-size: 16px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
   cursor: pointer;
-  background-color: #ffd400;
-  border: 1px solid #b89700;
+  background: linear-gradient(180deg, #ffe56b 0%, #ffc82e 100%);
+  border: 3px solid #9d7300;
+  border-radius: 999px;
+  box-shadow: 0 8px 0 rgba(157, 115, 0, 0.2);
+}
+
+button:active {
+  transform: translateY(2px);
+}
+
+@keyframes runner-bob {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes leg-left {
+  from {
+    transform: rotate(12deg);
+    transform-origin: top center;
+  }
+
+  to {
+    transform: rotate(-20deg);
+    transform-origin: top center;
+  }
+}
+
+@keyframes leg-right {
+  from {
+    transform: rotate(-20deg);
+    transform-origin: top center;
+  }
+
+  to {
+    transform: rotate(12deg);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 12px;
+  }
+
+  .container {
+    padding: 18px;
+  }
+
+  .info {
+    justify-content: center;
+  }
+
+  #game-area {
+    height: 340px;
+  }
+
+  .cloud-three,
+  #parallax-strip::after {
+    display: none;
+  }
+
+  #runner {
+    left: 72px;
+  }
 }
