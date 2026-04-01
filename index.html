@@ -57,9 +57,13 @@
       <p id="message">Press Start, use the arrow keys or touch controls to move, and jump with space, click, or tap.</p>
 
       <div class="touch-controls" id="mobile-controls" aria-label="On-screen game controls">
-        <button class="control-button control-move" type="button" data-control="left" aria-label="Move left">Left</button>
-        <button class="control-button control-jump" type="button" data-control="jump" aria-label="Jump">Jump</button>
-        <button class="control-button control-move" type="button" data-control="right" aria-label="Move right">Right</button>
+        <div class="control-cluster action-cluster" aria-label="Jump controls">
+          <button class="control-button control-jump" type="button" data-control="jump" aria-label="Jump">Jump</button>
+        </div>
+        <div class="control-cluster move-cluster" aria-label="Movement controls">
+          <button class="control-button control-move" type="button" data-control="left" aria-label="Move left">Left</button>
+          <button class="control-button control-move" type="button" data-control="right" aria-label="Move right">Right</button>
+        </div>
       </div>
 
       <!-- Button to begin the game -->

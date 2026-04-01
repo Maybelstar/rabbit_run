@@ -10,6 +10,10 @@ const runner = document.getElementById("runner");
 const message = document.getElementById("message");
 const startButton = document.getElementById("start-button");
 const controlButtons = Array.from(document.querySelectorAll(".control-button"));
+const controlButtonMap = controlButtons.reduce(function (map, button) {
+  map[button.dataset.control] = button;
+  return map;
+}, {});
 const sun = document.querySelector(".decor-sun");
 const clouds = Array.from(document.querySelectorAll(".decor-cloud"));
 const hillBack = document.querySelector(".hill-back");
@@ -48,6 +52,8 @@ const activeTouchControls = {
   left: new Set(),
   right: new Set(),
 };
+
+const activeJumpInputs = new Set();
 
 const runnerState = {
   x: 96,
@@ -683,38 +689,30 @@ function syncDirectionalControls() {
   controls.right = keyboardControls.right || activeTouchControls.right.size > 0;
 }
 
-function resetTouchControls() {
-  activeTouchControls.left.clear();
-  activeTouchControls.right.clear();
-  controlButtons.forEach(function (button) {
-    button.classList.remove("pressed");
-  });
-  syncDirectionalControls();
-}
+function setButtonPressed(control, isPressed) {
+  const button = controlButtonMap[control];
 
-function releaseTouchControl(button, pointerId) {
-  const control = button.dataset.control;
-
-  if (control !== "left" && control !== "right") {
-    button.classList.remove("pressed");
+  if (!button) {
     return;
   }
 
-  activeTouchControls[control].delete(pointerId);
-  button.classList.remove("pressed");
+  button.classList.toggle("pressed", isPressed);
+}
+
+function resetTouchControls() {
+  activeTouchControls.left.clear();
+  activeTouchControls.right.clear();
+  activeJumpInputs.clear();
+  setButtonPressed("left", false);
+  setButtonPressed("right", false);
+  setButtonPressed("jump", false);
   syncDirectionalControls();
 }
 
-function handleControlPress(event) {
-  if (event.cancelable) {
-    event.preventDefault();
-  }
-
-  const button = event.currentTarget;
-  const control = button.dataset.control;
-
+function pressControl(control, inputId) {
   if (control === "jump") {
-    button.classList.add("pressed");
+    activeJumpInputs.add(inputId);
+    setButtonPressed("jump", true);
     jump();
     return;
   }
@@ -723,21 +721,73 @@ function handleControlPress(event) {
     return;
   }
 
-  activeTouchControls[control].add(event.pointerId);
-  button.classList.add("pressed");
+  activeTouchControls[control].add(inputId);
+  setButtonPressed(control, true);
   syncDirectionalControls();
+}
 
-  if (button.setPointerCapture) {
-    button.setPointerCapture(event.pointerId);
+function releaseControl(control, inputId) {
+  if (control === "jump") {
+    activeJumpInputs.delete(inputId);
+    setButtonPressed("jump", activeJumpInputs.size > 0);
+    return;
   }
+
+  if (control !== "left" && control !== "right") {
+    return;
+  }
+
+  activeTouchControls[control].delete(inputId);
+  setButtonPressed(control, activeTouchControls[control].size > 0);
+  syncDirectionalControls();
 }
 
-function handleControlRelease(event) {
-  releaseTouchControl(event.currentTarget, event.pointerId);
+function getMouseInputId(control) {
+  return "mouse-" + control;
 }
 
-function handleJumpButtonRelease(event) {
-  event.currentTarget.classList.remove("pressed");
+function handleControlTouchStart(event) {
+  if (event.cancelable) {
+    event.preventDefault();
+  }
+
+  const control = event.currentTarget.dataset.control;
+
+  Array.from(event.changedTouches).forEach(function (touch) {
+    pressControl(control, "touch-" + touch.identifier);
+  });
+}
+
+function handleControlTouchEnd(event) {
+  if (event.cancelable) {
+    event.preventDefault();
+  }
+
+  const control = event.currentTarget.dataset.control;
+
+  Array.from(event.changedTouches).forEach(function (touch) {
+    releaseControl(control, "touch-" + touch.identifier);
+  });
+}
+
+function handleControlMouseDown(event) {
+  if (event.cancelable) {
+    event.preventDefault();
+  }
+
+  pressControl(event.currentTarget.dataset.control, getMouseInputId(event.currentTarget.dataset.control));
+}
+
+function handleControlMouseUp(event) {
+  releaseControl(event.currentTarget.dataset.control, getMouseInputId(event.currentTarget.dataset.control));
+}
+
+function handleControlMouseLeave(event) {
+  if (event.buttons !== 1) {
+    return;
+  }
+
+  releaseControl(event.currentTarget.dataset.control, getMouseInputId(event.currentTarget.dataset.control));
 }
 
 function handleWindowBlur() {
@@ -752,20 +802,12 @@ window.addEventListener("keyup", handleKeyUp);
 window.addEventListener("blur", handleWindowBlur);
 gameArea.addEventListener("pointerdown", handlePointerJump);
 controlButtons.forEach(function (button) {
-  const control = button.dataset.control;
-
-  button.addEventListener("pointerdown", handleControlPress);
-
-  if (control === "jump") {
-    button.addEventListener("pointerup", handleJumpButtonRelease);
-    button.addEventListener("pointercancel", handleJumpButtonRelease);
-    button.addEventListener("lostpointercapture", handleJumpButtonRelease);
-    return;
-  }
-
-  button.addEventListener("pointerup", handleControlRelease);
-  button.addEventListener("pointercancel", handleControlRelease);
-  button.addEventListener("lostpointercapture", handleControlRelease);
+  button.addEventListener("touchstart", handleControlTouchStart, { passive: false });
+  button.addEventListener("touchend", handleControlTouchEnd, { passive: false });
+  button.addEventListener("touchcancel", handleControlTouchEnd, { passive: false });
+  button.addEventListener("mousedown", handleControlMouseDown);
+  button.addEventListener("mouseup", handleControlMouseUp);
+  button.addEventListener("mouseleave", handleControlMouseLeave);
 });
 
 updateHud();
