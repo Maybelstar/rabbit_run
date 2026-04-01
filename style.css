@@ -65,6 +65,10 @@ h1 {
   flex-wrap: wrap;
 }
 
+.info p {
+  margin: 0;
+}
+
 #game-area {
   position: relative;
   width: 100%;
@@ -471,11 +475,13 @@ h1 {
 
 .action-cluster {
   justify-content: flex-start;
+  margin-right: auto;
 }
 
 .move-cluster {
   gap: 12px;
   justify-content: flex-end;
+  margin-left: auto;
 }
 
 .control-button {
@@ -621,5 +627,88 @@ button:active {
 
   #game-area {
     height: 300px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    min-height: 100svh;
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .container {
+    width: 100vw;
+    min-height: 100svh;
+    padding: 10px 12px 8px;
+    border-width: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    margin: 4px 0 8px;
+    font-size: 0.84rem;
+  }
+
+  .info {
+    justify-content: space-between;
+    gap: 8px 14px;
+    margin-bottom: 8px;
+    font-size: 0.84rem;
+  }
+
+  #game-area {
+    height: clamp(180px, 48svh, 230px);
+    border-width: 4px;
+    border-radius: 18px;
+  }
+
+  #message {
+    margin: 8px 0 6px;
+    min-height: 0;
+    font-size: 0.82rem;
+  }
+
+  .touch-controls {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px 20px;
+    gap: 24px;
+    border-width: 3px;
+    border-radius: 18px;
+  }
+
+  .action-cluster {
+    flex: 1 1 0;
+    justify-content: flex-start;
+  }
+
+  .move-cluster {
+    flex: 1 1 0;
+    justify-content: flex-end;
+    gap: 16px;
+  }
+
+  .control-button {
+    min-height: 52px;
+    min-width: 76px;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    border-width: 3px;
+    box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22);
+  }
+
+  .control-jump {
+    min-width: 108px;
+  }
+
+  button {
+    padding: 10px 18px;
+    font-size: 0.92rem;
   }
 }
