@@ -58,4 +58,6 @@ button {
   padding: 10px 16px;
   font-size: 16px;
   cursor: pointer;
+  background-color: #ffd400;
+  border: 1px solid #b89700;
 }
