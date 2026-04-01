@@ -16,8 +16,10 @@
   --brick-dark: #8d4725;
   --pipe-main: #22a55a;
   --pipe-dark: #177842;
-  --coin-main: #ffe25b;
-  --coin-dark: #d2a61f;
+  --egg-shell: #fff4df;
+  --egg-pink: #f5a9c1;
+  --egg-blue: #91c8f6;
+  --egg-green: #a7d97e;
 }
 
 body {
@@ -291,21 +293,36 @@ h1 {
   position: absolute;
   width: 24px;
   height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #fff2a3 0%, var(--coin-main) 55%, #ffbf21 100%);
-  border: 3px solid var(--coin-dark);
-  box-shadow: 0 0 12px rgba(255, 215, 64, 0.55);
+  border-radius: 48% 48% 46% 46% / 42% 42% 56% 56%;
+  background:
+    radial-gradient(circle at 50% 26%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 28%),
+    linear-gradient(
+      180deg,
+      var(--egg-shell) 0%,
+      var(--egg-shell) 24%,
+      var(--egg-pink) 24%,
+      var(--egg-pink) 43%,
+      var(--egg-blue) 43%,
+      var(--egg-blue) 67%,
+      var(--egg-green) 67%,
+      var(--egg-green) 100%
+    );
+  border: 3px solid #c98558;
+  box-shadow: 0 0 10px rgba(255, 202, 143, 0.38);
 }
 
 .coin::before {
   content: "";
   position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 50%;
-  width: 4px;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.35);
+  top: 7px;
+  left: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    10px 3px 0 rgba(255, 255, 255, 0.72),
+    5px 12px 0 rgba(255, 255, 255, 0.7);
 }
 
 .obstacle {

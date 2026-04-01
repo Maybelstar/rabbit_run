@@ -723,7 +723,7 @@ function updateCritterCollisions() {
         runnerState.velocityY = jumpPower * 0.28;
         runnerState.onGround = false;
         runner.classList.add("jumping");
-        setMessage("Ouch! -5 coins.", 2000);
+        setMessage("Ouch! -5 eggs.", 2000);
       }
     }
   }
