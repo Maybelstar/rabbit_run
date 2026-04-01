@@ -36,7 +36,6 @@ let animationFrameId;
 let lastFrameTime = 0;
 let cameraX = 0;
 let elapsedTime = 0;
-let cameraDirection = 1;
 
 const controls = {
   left: false,
@@ -336,7 +335,6 @@ function startGame() {
   lastFrameTime = 0;
   cameraX = 0;
   elapsedTime = 0;
-  cameraDirection = 1;
   keyboardControls.left = false;
   keyboardControls.right = false;
   resetTouchControls();
@@ -489,10 +487,6 @@ function updateRunner(frameScale) {
   const horizontalInput = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
   const horizontalMove = horizontalInput * moveSpeed * frameScale;
 
-  if (horizontalInput !== 0) {
-    cameraDirection = horizontalInput;
-  }
-
   resolveHorizontalMovement(horizontalMove);
   resolveVerticalMovement();
 
@@ -508,8 +502,7 @@ function updateRunner(frameScale) {
 function updateCamera() {
   const viewWidth = gameArea.clientWidth;
   const maxCamera = Math.max(0, levelLength - gameArea.clientWidth + 120);
-  const runnerScreenRatio = cameraDirection > 0 ? 1 / 3 : 2 / 3;
-  const targetCamera = runnerState.x - viewWidth * runnerScreenRatio;
+  const targetCamera = runnerState.x - (viewWidth - runnerWidth) / 2;
   cameraX = Math.max(0, Math.min(maxCamera, targetCamera));
 }
 
