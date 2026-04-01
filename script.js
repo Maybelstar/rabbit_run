@@ -64,6 +64,15 @@ const runnerState = {
 let coins = [];
 let obstacles = [];
 
+function getViewportScale() {
+  const scaleValue = window.getComputedStyle(document.documentElement).getPropertyValue("--viewport-scale").trim();
+  return Number(scaleValue) || 1;
+}
+
+function getVisibleWorldWidth() {
+  return gameArea.clientWidth / getViewportScale();
+}
+
 function loadBestScore() {
   try {
     return Number(window.localStorage.getItem("rabbit-run-best-score-v2")) || 0;
@@ -237,6 +246,8 @@ function setRunnerPosition() {
 }
 
 function renderCoins() {
+  const visibleWorldWidth = getVisibleWorldWidth();
+
   coins.forEach(function (coin) {
     if (coin.collected) {
       return;
@@ -245,11 +256,13 @@ function renderCoins() {
     const screenX = coin.x - cameraX;
     coin.element.style.left = screenX + "px";
     coin.element.style.bottom = groundHeight + coin.y + "px";
-    coin.element.style.display = screenX < -coin.width || screenX > gameArea.clientWidth ? "none" : "block";
+    coin.element.style.display = screenX < -coin.width || screenX > visibleWorldWidth ? "none" : "block";
   });
 }
 
 function renderObstacles() {
+  const visibleWorldWidth = getVisibleWorldWidth();
+
   obstacles.forEach(function (obstacle) {
     const screenX = obstacle.x - cameraX;
     if (obstacle.defeated) {
@@ -259,7 +272,7 @@ function renderObstacles() {
 
     obstacle.element.style.left = screenX + "px";
     obstacle.element.style.display =
-      screenX < -obstacle.width || screenX > gameArea.clientWidth ? "none" : "block";
+      screenX < -obstacle.width || screenX > visibleWorldWidth ? "none" : "block";
 
     if (obstacle.type === "critter") {
       obstacle.element.style.transform = obstacle.direction < 0 ? "scaleX(-1)" : "scaleX(1)";
@@ -268,10 +281,11 @@ function renderObstacles() {
 }
 
 function renderFinishFlag() {
+  const visibleWorldWidth = getVisibleWorldWidth();
   const screenLeft = levelLength - cameraX;
   finishFlag.style.left = screenLeft + "px";
   finishFlag.style.right = "auto";
-  finishFlag.style.display = screenLeft < -80 || screenLeft > gameArea.clientWidth + 80 ? "none" : "block";
+  finishFlag.style.display = screenLeft < -80 || screenLeft > visibleWorldWidth + 80 ? "none" : "block";
 }
 
 function renderScene() {
@@ -500,9 +514,9 @@ function updateRunner(frameScale) {
 }
 
 function updateCamera() {
-  const viewWidth = gameArea.clientWidth;
-  const maxCamera = Math.max(0, levelLength - gameArea.clientWidth + 120);
-  const targetCamera = runnerState.x - (viewWidth - runnerWidth) / 2;
+  const visibleWorldWidth = getVisibleWorldWidth();
+  const maxCamera = Math.max(0, levelLength - visibleWorldWidth + 120);
+  const targetCamera = runnerState.x - (visibleWorldWidth - runnerWidth) / 2;
   cameraX = Math.max(0, Math.min(maxCamera, targetCamera));
 }
 
