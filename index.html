@@ -16,6 +16,8 @@
   <body>
     <!-- Main game content -->
     <main class="container">
+      <p class="version-badge">v1.3</p>
+
       <!-- Game title -->
       <h1>Rabbit Run</h1>
       <p class="subtitle">Hop through a retro level, stomp critters, and collect shining coins.</p>
@@ -23,17 +25,17 @@
       <!-- Score and timer area -->
       <div class="info">
         <div class="info-column info-left">
-          <p>Score: <span id="score">0</span></p>
-          <p id="high-score">High score: 0 by Nobody yet</p>
+          <p><span class="stat-label">High score:</span> <span id="high-score-value">0 by Nobody yet</span></p>
         </div>
         <div class="info-column info-right">
-          <p>Time: <span id="timer">0.0</span>s</p>
-          <p>Distance: <span id="distance">0%</span></p>
+          <p><span class="stat-label">Time:</span> <span id="timer">0.0</span>s</p>
+          <p><span class="stat-label">Distance:</span> <span id="distance">0%</span></p>
         </div>
       </div>
 
       <!-- This is the side-scrolling game area -->
       <div id="game-area" aria-label="Retro platform game area">
+        <div id="score-overlay"><span class="stat-label">Score:</span> <span id="score">0</span></div>
         <div id="world-stage">
           <div class="sky-decor decor-sun"></div>
           <div class="sky-decor decor-cloud cloud-one"></div>
@@ -60,7 +62,7 @@
       </div>
 
       <!-- Message shown before and after the game -->
-      <p id="message">Press Start, use the arrow keys or touch controls to move, and jump with space, click, or tap.</p>
+      <p id="message">Move left, right, or jump to start the run.</p>
 
       <div class="touch-controls" id="mobile-controls" aria-label="On-screen game controls">
         <div class="control-cluster action-cluster" aria-label="Jump controls">
@@ -71,9 +73,6 @@
           <button class="control-button control-move" type="button" data-control="right" aria-label="Move right">Right</button>
         </div>
       </div>
-
-      <!-- Button to begin the game -->
-      <button id="start-button">Start Game</button>
     </main>
 
     <!-- Connect this HTML file to the JavaScript file -->

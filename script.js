@@ -1,5 +1,6 @@
 const scoreDisplay = document.getElementById("score");
-const highScoreDisplay = document.getElementById("high-score");
+const scoreOverlay = document.getElementById("score-overlay");
+const highScoreDisplay = document.getElementById("high-score-value");
 const timerDisplay = document.getElementById("timer");
 const distanceDisplay = document.getElementById("distance");
 const gameArea = document.getElementById("game-area");
@@ -8,7 +9,6 @@ const obstaclesLayer = document.getElementById("obstacles-layer");
 const finishFlag = document.getElementById("finish-flag");
 const runner = document.getElementById("runner");
 const message = document.getElementById("message");
-const startButton = document.getElementById("start-button");
 const controlButtons = Array.from(document.querySelectorAll(".control-button"));
 const controlButtonMap = controlButtons.reduce(function (map, button) {
   map[button.dataset.control] = button;
@@ -40,6 +40,10 @@ let animationFrameId;
 let lastFrameTime = 0;
 let cameraX = 0;
 let elapsedTime = 0;
+let timePenaltyApplied = 0;
+let critterHitCooldown = 0;
+let messageTimeoutId = 0;
+let scoreFlashTimeoutId = 0;
 
 const controls = {
   left: false,
@@ -75,6 +79,59 @@ function getViewportScale() {
 
 function getVisibleWorldWidth() {
   return gameArea.clientWidth / getViewportScale();
+}
+
+function setMessage(text, durationMs) {
+  message.textContent = text;
+
+  if (messageTimeoutId) {
+    window.clearTimeout(messageTimeoutId);
+    messageTimeoutId = 0;
+  }
+
+  if (!durationMs) {
+    return;
+  }
+
+  messageTimeoutId = window.setTimeout(function () {
+    if (message.textContent === text) {
+      message.textContent = "";
+    }
+  }, durationMs);
+}
+
+function flashScore(direction) {
+  if (!scoreOverlay) {
+    return;
+  }
+
+  scoreOverlay.classList.remove("score-up", "score-down");
+
+  if (scoreFlashTimeoutId) {
+    window.clearTimeout(scoreFlashTimeoutId);
+    scoreFlashTimeoutId = 0;
+  }
+
+  if (direction === 0) {
+    return;
+  }
+
+  scoreOverlay.classList.add(direction > 0 ? "score-up" : "score-down");
+  scoreFlashTimeoutId = window.setTimeout(function () {
+    scoreOverlay.classList.remove("score-up", "score-down");
+  }, 450);
+}
+
+function adjustScore(delta) {
+  const nextScore = Math.max(0, score + delta);
+  const change = nextScore - score;
+
+  if (change === 0) {
+    return;
+  }
+
+  score = nextScore;
+  flashScore(change);
 }
 
 function randomBetween(min, max) {
@@ -177,7 +234,7 @@ function saveBestScore() {
 }
 
 function updateBestScoreDisplay() {
-  highScoreDisplay.textContent = "High score: " + bestScore + " by " + bestPlayerName;
+  highScoreDisplay.textContent = bestScore + " by " + bestPlayerName;
 }
 
 function maybeRecordBestScore() {
@@ -373,21 +430,11 @@ function stopGameLoop() {
   runner.classList.remove("jumping");
 }
 
-function loseGame(text) {
-  stopGameLoop();
-  const isNewBest = maybeRecordBestScore();
-  message.textContent = text + " Score: " + score + "." + (isNewBest ? " New record!" : "");
-  updateHud();
-}
-
 function winGame() {
   stopGameLoop();
-  const speedBonus = Math.max(0, Math.round(900 - elapsedTime * 15));
-  score = score + speedBonus;
   const isNewBest = maybeRecordBestScore();
   updateHud();
-  message.textContent =
-    "Flag reached! Speed bonus: " + speedBonus + ". Final score: " + score + "." + (isNewBest ? " New record!" : "");
+  setMessage("Flag reached! Final score: " + score + "." + (isNewBest ? " New record!" : ""), 2000);
 }
 
 function startGame() {
@@ -396,9 +443,9 @@ function startGame() {
   lastFrameTime = 0;
   cameraX = 0;
   elapsedTime = 0;
-  keyboardControls.left = false;
-  keyboardControls.right = false;
-  resetTouchControls();
+  timePenaltyApplied = 0;
+  critterHitCooldown = 0;
+  flashScore(0);
 
   runnerState.x = 96;
   runnerState.y = 0;
@@ -406,24 +453,47 @@ function startGame() {
   runnerState.onGround = true;
 
   buildLevel();
+  updateCamera();
   updateHud();
   renderScene();
   runner.classList.remove("jumping");
-  message.textContent = "Move fast for a bonus, but collect coins on the way.";
-  startButton.textContent = "Restart Run";
+  setMessage("");
   cancelAnimationFrame(animationFrameId);
 
   animationFrameId = requestAnimationFrame(gameLoop);
 }
 
+function startGameIfNeeded() {
+  if (gameRunning) {
+    return false;
+  }
+
+  startGame();
+  return true;
+}
+
 function jump() {
-  if (gameRunning === false || runnerState.onGround === false) {
+  startGameIfNeeded();
+
+  if (runnerState.onGround === false) {
     return;
   }
 
   runnerState.velocityY = jumpPower;
   runnerState.onGround = false;
   runner.classList.add("jumping");
+}
+
+function applyTimePenalty() {
+  const nextPenalty = Math.floor(Math.max(0, elapsedTime - 20));
+  const penaltyDelta = nextPenalty - timePenaltyApplied;
+
+  if (penaltyDelta <= 0) {
+    return;
+  }
+
+  timePenaltyApplied = nextPenalty;
+  adjustScore(-penaltyDelta);
 }
 
 function getRunnerBounds(nextX, nextY) {
@@ -585,8 +655,7 @@ function updateCoins() {
     if (overlaps(runnerBounds, coinBounds)) {
       coin.collected = true;
       coin.element.style.display = "none";
-      score = score + 10;
-      updateHud();
+      adjustScore(1);
     }
   });
 }
@@ -643,9 +712,7 @@ function updateCritterCollisions() {
         runnerState.velocityY = jumpPower * 0.55;
         runnerState.onGround = false;
         runner.classList.add("jumping");
-        score = score + 20;
-        message.textContent = "Nice stomp! +2 coins.";
-        updateHud();
+        setMessage("Nice stomp!", 2000);
         continue;
       }
 
@@ -654,9 +721,13 @@ function updateCritterCollisions() {
         Math.abs(runnerState.velocityY) < 0.01 &&
         horizontalOverlap >= 14;
 
-      if (critterHitRunner) {
-        loseGame("A roaming critter knocked you out");
-        return;
+      if (critterHitRunner && critterHitCooldown <= 0) {
+        critterHitCooldown = 1.1;
+        adjustScore(-5);
+        runnerState.velocityY = jumpPower * 0.28;
+        runnerState.onGround = false;
+        runner.classList.add("jumping");
+        setMessage("Ouch! -5 coins.", 2000);
       }
     }
   }
@@ -681,10 +752,12 @@ function gameLoop(timestamp) {
   const frameScale = Math.min(2.2, deltaTime / 16.67);
   lastFrameTime = timestamp;
   elapsedTime = elapsedTime + deltaTime / 1000;
+  critterHitCooldown = Math.max(0, critterHitCooldown - deltaTime / 1000);
 
   updateRunner(frameScale);
   updateCritters(frameScale);
   updateCoins();
+  applyTimePenalty();
 
   if (gameRunning === false) {
     return;
@@ -708,6 +781,7 @@ function handleKeyDown(event) {
     event.preventDefault();
     keyboardControls.left = true;
     syncDirectionalControls();
+    startGameIfNeeded();
     return;
   }
 
@@ -715,6 +789,7 @@ function handleKeyDown(event) {
     event.preventDefault();
     keyboardControls.right = true;
     syncDirectionalControls();
+    startGameIfNeeded();
     return;
   }
 
@@ -784,6 +859,7 @@ function pressControl(control, inputId) {
   activeTouchControls[control].add(inputId);
   setButtonPressed(control, true);
   syncDirectionalControls();
+  startGameIfNeeded();
 }
 
 function releaseControl(control, inputId) {
@@ -856,7 +932,6 @@ function handleWindowBlur() {
   resetTouchControls();
 }
 
-startButton.addEventListener("click", startGame);
 window.addEventListener("keydown", handleKeyDown);
 window.addEventListener("keyup", handleKeyUp);
 window.addEventListener("blur", handleWindowBlur);
@@ -870,5 +945,8 @@ controlButtons.forEach(function (button) {
   button.addEventListener("mouseleave", handleControlMouseLeave);
 });
 
+buildLevel();
+updateCamera();
 updateHud();
 renderScene();
+setMessage("Move left, right, or jump to start the run.");

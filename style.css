@@ -34,6 +34,7 @@ body {
 }
 
 .container {
+  position: relative;
   width: min(100%, 860px);
   padding: 26px;
   border: 5px solid var(--ink);
@@ -47,6 +48,18 @@ h1 {
   margin: 0;
   font-size: clamp(2.2rem, 4.2vw, 3.4rem);
   color: var(--ink);
+}
+
+.version-badge {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(27, 53, 85, 0.68);
 }
 
 .subtitle {
@@ -68,6 +81,10 @@ h1 {
 
 .info p {
   margin: 0;
+}
+
+.stat-label {
+  font-weight: 900;
 }
 
 .info-column {
@@ -96,6 +113,31 @@ h1 {
     radial-gradient(circle at 76% 14%, rgba(255, 234, 177, 0.28) 0%, rgba(255, 234, 177, 0) 18%),
     linear-gradient(180deg, var(--sky-top) 0%, #c7e2f8 48%, var(--sky-bottom) 100%);
   cursor: pointer;
+}
+
+#score-overlay {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  padding: 8px 12px;
+  border: 3px solid rgba(27, 53, 85, 0.88);
+  border-radius: 16px;
+  background: rgba(251, 251, 248, 0.9);
+  box-shadow: 0 8px 18px rgba(27, 53, 85, 0.14);
+  color: var(--ink);
+  font-size: 1.16rem;
+  line-height: 1.1;
+}
+
+#score-overlay.score-up {
+  color: #1f8f43;
+  border-color: #1f8f43;
+}
+
+#score-overlay.score-down {
+  color: #b73a33;
+  border-color: #b73a33;
 }
 
 #world-stage {
@@ -131,6 +173,29 @@ h1 {
   border-radius: 50%;
   background: radial-gradient(circle, #fff9dd 0%, var(--sun) 58%, #f3b665 100%);
   box-shadow: 0 0 0 22px rgba(255, 216, 138, 0.12);
+}
+
+.decor-sun::before {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: 22px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(124, 83, 20, 0.92);
+  box-shadow: 20px 0 0 rgba(124, 83, 20, 0.92);
+}
+
+.decor-sun::after {
+  content: "";
+  position: absolute;
+  left: 21px;
+  bottom: 18px;
+  width: 30px;
+  height: 14px;
+  border-bottom: 4px solid rgba(124, 83, 20, 0.92);
+  border-radius: 0 0 20px 20px;
 }
 
 .decor-cloud {
@@ -607,6 +672,12 @@ button:active {
     padding: 18px;
   }
 
+  .version-badge {
+    top: 12px;
+    right: 14px;
+    font-size: 0.68rem;
+  }
+
   .info {
     gap: 10px 14px;
     font-size: 0.95rem;
@@ -633,6 +704,13 @@ button:active {
     aspect-ratio: 100 / 107;
   }
 
+  #score-overlay {
+    top: 12px;
+    left: 12px;
+    padding: 7px 10px;
+    font-size: 1.02rem;
+  }
+
   .cloud-three,
   #parallax-strip::after {
     display: none;
@@ -657,6 +735,11 @@ button:active {
     border-radius: 22px;
   }
 
+  .version-badge {
+    top: 10px;
+    right: 12px;
+  }
+
   .subtitle {
     margin: 8px 0 16px;
     font-size: 0.95rem;
@@ -678,5 +761,11 @@ button:active {
 
   #game-area {
     min-height: 372px;
+  }
+
+  #score-overlay {
+    top: 10px;
+    left: 10px;
+    font-size: 0.96rem;
   }
 }
